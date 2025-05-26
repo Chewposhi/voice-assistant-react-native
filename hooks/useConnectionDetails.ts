@@ -1,46 +1,34 @@
 import { useEffect, useState } from 'react';
 
-// TODO: Add your Sandbox ID here
-const sandboxID = '';
-const tokenEndpoint =
-  'https://cloud-api.livekit.io/api/sandbox/connection-details';
+// Local development configuration
+const tokenEndpoint = 'http://10.0.2.2:3000/getToken';
+const hardcodedUrl = 'wss://zero1buddy-y4k4tjlm.livekit.cloud';
 
-// For use without a token server.
-const hardcodedUrl = '';
-const hardcodedToken = '';
+type ConnectionDetails = {
+  url: string;
+  token: string;
+};
 
 /**
- * Retrieves a LiveKit token.
- *
- * Currently configured to use LiveKit's Sandbox token server.
- * When building an app for production, you should use your own token server.
+ * Retrieves a LiveKit token from the local token server.
  */
 export function useConnectionDetails(): ConnectionDetails | undefined {
-  const [details, setDetails] = useState<ConnectionDetails | undefined>(() => {
-    if (!sandboxID) {
-      return {
-        url: hardcodedUrl,
-        token: hardcodedToken,
-      };
-    }
-    return undefined;
-  });
+  const [details, setDetails] = useState<ConnectionDetails | undefined>(undefined);
 
   useEffect(() => {
     const fetchToken = async () => {
-      if (!sandboxID) {
-        return;
-      }
-      const response = await fetch(tokenEndpoint, {
-        headers: { 'X-Sandbox-ID': sandboxID },
-      });
-      const json = await response.json();
+      try {
+        const response = await fetch(tokenEndpoint);
+        const token = await response.text();
 
-      if (json.serverUrl && json.participantToken) {
-        setDetails({
-          url: json.serverUrl,
-          token: json.participantToken,
-        });
+        if (token) {
+          setDetails({
+            url: hardcodedUrl,
+            token: token,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch token:', error);
       }
     };
 
@@ -49,8 +37,3 @@ export function useConnectionDetails(): ConnectionDetails | undefined {
 
   return details;
 }
-
-type ConnectionDetails = {
-  url: string;
-  token: string;
-};
