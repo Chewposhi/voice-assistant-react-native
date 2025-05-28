@@ -8,7 +8,7 @@ export default function StartScreen() {
     <View style={styles.container}>
       <Button
         onPress={() => router.navigate('../assistant')}
-        title="Start Voice Assistant"
+        title="Talk to your Zero1Buddy"
       />
     </View>
   );

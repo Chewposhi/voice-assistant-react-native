@@ -15,6 +15,7 @@ import {
   LiveKitRoom,
   useIOSAudioManagement,
   useLocalParticipant,
+  useRemoteParticipant,
   useParticipantTracks,
   useRoomContext,
   useTrackTranscription,
@@ -22,8 +23,9 @@ import {
 } from '@livekit/react-native';
 import { useConnectionDetails } from '@/hooks/useConnectionDetails';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Track } from 'livekit-client';
+import { ParticipantKind, Track } from 'livekit-client';
 import { useRouter } from 'expo-router';
+import RiveVoiceBlob from '../components/RiveVoiceBlob';
 
 export default function AssistantScreen() {
   // Start the audio session first.
@@ -62,6 +64,15 @@ const RoomView = () => {
   useIOSAudioManagement(room, true);
 
   const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
+  const remoteParticipant = useRemoteParticipant({
+    kind: ParticipantKind.AGENT,
+  });
+
+  useEffect(() => {
+    if (remoteParticipant?.audioLevel !== undefined) {
+      console.log('remoteParticipant audio level:', remoteParticipant.audioLevel);
+    }
+  }, [remoteParticipant?.audioLevel]);
 
   // Transcriptions
   const localTracks = useParticipantTracks(
@@ -72,7 +83,7 @@ const RoomView = () => {
     localTracks[0]
   );
 
-  const { agentTranscriptions } = useVoiceAssistant();
+  const { agentTranscriptions, state } = useVoiceAssistant();
 
   const lastUserTranscription = (
     userTranscriptions.length > 0
@@ -98,6 +109,7 @@ const RoomView = () => {
       <ScrollView style={styles.logContainer}>
         <UserTranscriptionText text={lastUserTranscription} />
         <AgentTranscriptionText text={lastAgentTranscription} />
+        <RiveVoiceBlob audioLevel={remoteParticipant?.audioLevel ?? 0} size={400} />
       </ScrollView>
 
       <View style={styles.controlsContainer}>

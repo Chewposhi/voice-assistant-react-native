@@ -22,10 +22,10 @@ export function useConnectionDetails(): ConnectionDetails | undefined {
         const token = await response.text();
 
         if (token) {
-          setDetails({
+        setDetails({
             url: hardcodedUrl,
             token: token,
-          });
+        });
         }
       } catch (error) {
         console.error('Failed to fetch token:', error);
